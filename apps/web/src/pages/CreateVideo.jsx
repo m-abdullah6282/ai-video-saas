@@ -8,22 +8,22 @@ import { mockSectors } from "../lib/mockData";
 // working end-to-end, before copy-pasting the pattern for the rest —
 // that way if the pattern is wrong, we only fix it once.
 export default function CreateVideo() {
-  const [selectedSector, setSelectedSector] = useState<string | null>(null);
+  const [selectedSector, setSelectedSector] = useState(null);
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-navy mb-1">Create Video</h1>
-      <p className="text-steel mb-6">Step 1 of 9 — Sector</p>
+      <h1 className="text-3xl font-display font-semibold mb-1">Create Video</h1>
+      <p className="text-white/50 mb-8">Step 1 of 9 — Sector</p>
 
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-3 gap-3 mb-8">
         {mockSectors.map((sector) => (
           <button
             key={sector}
             onClick={() => setSelectedSector(sector)}
-            className={`p-4 rounded-lg border text-left transition ${
+            className={`p-4 rounded-xl border text-left transition ${
               selectedSector === sector
-                ? "border-teal bg-teal/10 text-navy font-medium"
-                : "border-steel/30 bg-white hover:border-teal"
+                ? "border-neon-green bg-neon-green/10 font-medium"
+                : "border-white/10 bg-white/[0.03] hover:border-white/30"
             }`}
           >
             {sector}
@@ -33,7 +33,7 @@ export default function CreateVideo() {
 
       <button
         disabled={!selectedSector}
-        className="bg-navy text-white px-5 py-2 rounded disabled:opacity-40 disabled:cursor-not-allowed"
+        className="bg-neon-green text-black font-medium px-5 py-2.5 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
       >
         Next: Country →
       </button>
