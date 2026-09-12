@@ -1,14 +1,21 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./index.html", "./src/**/*.{ts,tsx}"],
+  content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
     extend: {
       colors: {
-        // Straight from the mood board brief — deep navy, teal accent, steel silver
-        navy: "#1A2B4C",
-        teal: "#1F8C8C",
+        // From Figma "Mood Board & Visual Direction" — dark theme, neon-green primary
+        "neon-green": "#C6FB49",
+        "cyan-blue": "#3FDEFE",
         steel: "#9AA5AD",
-        lightbg: "#F4F6F8",
+        canvas: "#F4F6F8",
+        success: "#16A34A",
+        error: "#FF3611",
+      },
+      fontFamily: {
+        // Sora = headings/display, Inter = body/data (per Typography Pairing frame)
+        display: ["Sora", "sans-serif"],
+        body: ["Inter", "sans-serif"],
       },
     },
   },
