@@ -47,10 +47,10 @@ organization generates or stores is private to that organization.
 ai-video-saas/
 ├── apps/
 │   ├── web/           # Next.js — prototype UI (Phase 1: mocked data, no real API calls)
-│   └── api/            # Node.js/TypeScript backend
+│   └── api/            # Node.js backend (plain JavaScript)
 │       └── src/providers/  # Provider Adapter Pattern (see docs/ARCHITECTURE.md)
 ├── packages/
-│   └── shared-types/    # Shared TypeScript interfaces used by both web and api
+│   └── shared-types/    # Shared JS shapes (documented via JSDoc) used by both web and api
 ├── docs/
 │   └── ARCHITECTURE.md  # Deep-dive on RAG design, provider adapters, cost engine
 ├── .github/workflows/   # CI — tests run automatically on every push (mandatory from Day 1)

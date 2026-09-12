@@ -3,15 +3,16 @@
 // (Phase 2+), we swap these functions for real fetch() calls without
 // touching any component code, since components only import from here.
 
-export interface MockVideo {
-  id: string;
-  title: string;
-  sector: string;
-  country: string;
-  status: string;
-  createdAt: string;
-  reusePercentage: number;
-}
+/**
+ * @typedef {Object} MockVideo
+ * @property {string} id
+ * @property {string} title
+ * @property {string} sector
+ * @property {string} country
+ * @property {string} status
+ * @property {string} createdAt
+ * @property {number} reusePercentage
+ */
 
 export const mockDashboardStats = {
   videosThisMonth: 42,
@@ -20,7 +21,8 @@ export const mockDashboardStats = {
   overallReuseRate: 68,
 };
 
-export const mockVideos: MockVideo[] = [
+/** @type {MockVideo[]} */
+export const mockVideos = [
   {
     id: "v1",
     title: "Five Signs of Safeguarding Concern",

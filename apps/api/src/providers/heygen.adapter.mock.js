@@ -1,23 +1,14 @@
 // Phase 1 (prototype) implementation — returns fake data, makes NO real
 // network calls, spends NO real HeyGen credits.
-// In Phase 4 this gets replaced by a real HeyGenAdapter that calls the
-// actual HeyGen API, but implements the SAME VideoProvider interface —
-// so nothing else in the app has to change.
+// In Phase 4 this gets replaced by a real heygen.adapter.js that calls the
+// actual HeyGen API, but implements the SAME methods (see
+// packages/shared-types VIDEO_PROVIDER_METHODS) — so nothing else in the
+// app has to change.
 
-import type {
-  Avatar,
-  CostEstimate,
-  GenerationHandle,
-  GenerationStatus,
-  Voice,
-  VideoJob,
-  VideoProvider,
-} from "shared-types";
+export class HeyGenMockAdapter {
+  name = "heygen";
 
-export class HeyGenMockAdapter implements VideoProvider {
-  name = "heygen" as const;
-
-  async listAvatars(): Promise<Avatar[]> {
+  async listAvatars() {
     return [
       {
         id: "mock-avatar-1",
@@ -33,7 +24,7 @@ export class HeyGenMockAdapter implements VideoProvider {
     ];
   }
 
-  async listVoices(): Promise<Voice[]> {
+  async listVoices() {
     return [
       {
         id: "mock-voice-1",
@@ -47,7 +38,7 @@ export class HeyGenMockAdapter implements VideoProvider {
     ];
   }
 
-  async estimateCost(_job: VideoJob): Promise<CostEstimate> {
+  async estimateCost(_job) {
     return {
       providerGenerationCost: 4.2,
       otherAiCost: 0.4,
@@ -58,15 +49,15 @@ export class HeyGenMockAdapter implements VideoProvider {
     };
   }
 
-  async createVideo(_job: VideoJob): Promise<GenerationHandle> {
+  async createVideo(_job) {
     return { provider: "heygen", externalJobId: "mock-job-123" };
   }
 
-  async checkStatus(_handle: GenerationHandle): Promise<GenerationStatus> {
+  async checkStatus(_handle) {
     return "ready_for_review";
   }
 
-  async downloadVideo(_handle: GenerationHandle): Promise<Buffer> {
+  async downloadVideo(_handle) {
     return Buffer.from(""); // placeholder — Phase 1 has no real video output
   }
 }

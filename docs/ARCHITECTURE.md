@@ -6,24 +6,24 @@
 shapes. If we call each one directly from business logic, adding a 4th provider
 later means touching code everywhere.
 
-**Solution:** One common interface. Every provider gets an "adapter" that
-translates our interface into that provider's real API.
+**Solution:** One common set of methods. Every provider gets an "adapter"
+class that translates our interface into that provider's real API. We're
+using plain JavaScript (not TypeScript), so this contract is documented via
+JSDoc and enforced by tests rather than a compiler:
 
-```ts
-// packages/shared-types/src/provider.ts
-interface VideoProvider {
-  listAvatars(): Promise<Avatar[]>;
-  listVoices(): Promise<Voice[]>;
-  estimateCost(job: VideoJob): Promise<CostEstimate>;
-  createVideo(job: VideoJob): Promise<GenerationHandle>;
-  checkStatus(handle: GenerationHandle): Promise<GenerationStatus>;
-  downloadVideo(handle: GenerationHandle): Promise<Buffer>;
-}
+```js
+// packages/shared-types/src/index.js
+export const VIDEO_PROVIDER_METHODS = [
+  "listAvatars", "listVoices", "estimateCost",
+  "createVideo", "checkStatus", "downloadVideo",
+];
 ```
 
-`HeyGenAdapter`, `SynthesiaAdapter`, `CreatifyAdapter` all implement this. The
-rest of the app never knows which provider it's talking to — it just calls
-`provider.createVideo(job)`.
+`HeyGenAdapter`, `SynthesiaAdapter`, `CreatifyAdapter` all implement these
+same methods. The rest of the app never knows which provider it's talking
+to — it just calls `provider.createVideo(job)`. A shared test helper loops
+over `VIDEO_PROVIDER_METHODS` and asserts every adapter has all of them —
+this is how we catch a missing method without a compiler.
 
 **Consequence if skipped:** every new provider = rewriting core logic across
 the app. Directly violates the brief's "modular architecture" requirement.
