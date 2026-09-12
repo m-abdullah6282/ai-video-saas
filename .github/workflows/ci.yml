@@ -1,0 +1,23 @@
+name: CI
+
+# Runs automatically on every push and pull request.
+# Nothing reaches staging/production without passing this first.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+      - name: Run tests
+        run: npm test
+        # NOTE: real HeyGen/Synthesia/Creatify APIs must NEVER be called here.
+        # Provider tests run against the *.mock.ts adapters only.

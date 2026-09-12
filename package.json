@@ -1,0 +1,12 @@
+{
+  "name": "ai-video-saas",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "echo 'Phase 1: run apps/web and apps/api dev servers here once scaffolded'",
+    "test": "echo 'CI entrypoint — unit/integration/e2e tests run from here'"
+  }
+}
