@@ -1,11 +1,11 @@
-
 _assets: list[dict] = []
 
 
-def add_asset(asset_id: str, text: str, embedding: list[float]):
+def add_asset(asset_id: str, text: str, sector: str, embedding: list[float]):
     _assets.append({
         "id": asset_id,
         "text": text,
+        "sector": sector,
         "embedding": embedding,
     })
 

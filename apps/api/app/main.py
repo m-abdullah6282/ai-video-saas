@@ -1,9 +1,10 @@
 from fastapi import FastAPI
-from app.routers import dashboard
+from app.routers import dashboard, assets
 
 app = FastAPI(title="AI Video Creation SaaS API")
 
 app.include_router(dashboard.router)
+app.include_router(assets.router)
 
 
 @app.get("/")

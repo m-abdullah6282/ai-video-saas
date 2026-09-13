@@ -5,28 +5,26 @@ from app.rag.retrieval import search_similar_assets
 
 
 async def main():
-    # Step A: Kuch fake assets "database" mein daalte hain
     sample_scripts = [
-        ("script-1", "Elder mistreatment warning signs training video for care staff"),
-        ("script-2", "How to bake a chocolate cake step by step"),
-        ("script-3", "Adult social care safeguarding procedures overview"),
-        ("script-4", "Fire safety evacuation drill for office buildings"),
-        ("script-5", "Introduction to nursery playtime activities for toddlers"),
+        ("script-1", "Elder mistreatment warning signs training video for care staff", "Adult Care"),
+        ("script-2", "How to bake a chocolate cake step by step", "Other"),
+        ("script-3", "Adult social care safeguarding procedures overview", "Adult Care"),
+        ("script-4", "Fire safety evacuation drill for office buildings", "Corporate"),
+        ("script-5", "Introduction to nursery playtime activities for toddlers", "Early Years"),
     ]
 
-    for asset_id, text in sample_scripts:
+    for asset_id, text, sector in sample_scripts:
         embedding = await get_embedding(text, task_type="RETRIEVAL_DOCUMENT")
-        add_asset(asset_id, text, embedding)
+        add_asset(asset_id, text, sector, embedding)
 
-    print("Assets added. Now searching...\n")
+    print("Assets added. Now searching WITH sector filter...\n")
 
-    # Step B: Naya query search karte hain
     query = "Create a safeguarding video for adult care workers"
-    results = await search_similar_assets(query, top_k=3)
+    results = await search_similar_assets(query, sector="Adult Care", top_k=3)
 
-    print(f"Query: {query}\n")
+    print(f"Query: {query}  (sector filter: Adult Care)\n")
     for r in results:
-        print(f"  [{r['similarity']:.4f}] {r['id']}: {r['text']}")
+        print(f"  [{r['similarity']:.4f}] {r['id']} ({r['sector']}): {r['text']}")
 
 
 asyncio.run(main())

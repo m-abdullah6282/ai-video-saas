@@ -16,3 +16,15 @@ class VideoOut(BaseModel):
     status: str
     created_at: str
     reuse_percentage: int
+
+class AssetSearchRequest(BaseModel):
+    query: str
+    sector: str | None = None
+    top_k: int = 3
+
+
+class AssetSearchResult(BaseModel):
+    id: str
+    text: str
+    sector: str
+    similarity: float
