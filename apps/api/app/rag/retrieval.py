@@ -28,7 +28,7 @@ async def search_similar_assets(
     # STEP 1: HARD FILTER — sector must match, if one was given
     if sector is not None:
         candidates = [a for a in all_assets if a["sector"] == sector]
-    else:
+    else: 
         candidates = all_assets
 
     # STEP 2: SOFT RANKING — only now do we compute similarity

@@ -1,10 +1,12 @@
 import asyncio
 from app.rag.embeddings import get_embedding
-from app.rag.asset_store import add_asset
+from app.rag.asset_store import init_db, add_asset
 from app.rag.retrieval import search_similar_assets
 
 
 async def main():
+    init_db()
+
     sample_scripts = [
         ("script-1", "Elder mistreatment warning signs training video for care staff", "Adult Care"),
         ("script-2", "How to bake a chocolate cake step by step", "Other"),
@@ -19,7 +21,7 @@ async def main():
 
     print("Assets added. Now searching WITH sector filter...\n")
 
-    query = "Create a safeguarding video for adult care workers"
+    query = "Hpw are you"
     results = await search_similar_assets(query, sector="Adult Care", top_k=3)
 
     print(f"Query: {query}  (sector filter: Adult Care)\n")
