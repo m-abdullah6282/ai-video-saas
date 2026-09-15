@@ -9,15 +9,20 @@ genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 EMBEDDING_MODEL = "models/gemini-embedding-001"
 
 
-async def get_embedding(text: str ,task_type: str = "SEMANTIC_SIMILARITY") -> list[float]:
+async def get_embedding(text: str, task_type: str = "SEMANTIC_SIMILARITY") -> list[float]:
     """
     Converts a piece of text into a vector that represents its
-    meaning, using Google's Gemini embedding API. Similar-meaning
-    texts produce vectors that are numerically close together.
+    meaning, using Google's Gemini embedding API.
     """
-    result = genai.embed_content(
-        model=EMBEDDING_MODEL,
-        content=text,
-        task_type=task_type,
-    )
-    return result["embedding"]
+    if not text or not text.strip():
+        raise ValueError("Cannot generate embedding for empty text")
+
+    try:
+        result = genai.embed_content(
+            model=EMBEDDING_MODEL,
+            content=text,
+            task_type=task_type,
+        )
+        return result["embedding"]
+    except Exception as e:
+        raise RuntimeError(f"Embedding generation failed: {e}") from e
