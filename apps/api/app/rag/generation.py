@@ -23,6 +23,9 @@ RELEVANT PAST SCRIPTS (for style/tone reference):
 
 Write a new short video script (60 seconds) for this request."""
 
-    model = genai.GenerativeModel(GENERATION_MODEL)
-    response = await model.generate_content_async(prompt)
-    return response.text
+    try:
+        model = genai.GenerativeModel(GENERATION_MODEL)
+        response = await model.generate_content_async(prompt)
+        return response.text
+    except Exception as e:
+        raise RuntimeError(f"Script generation temporarily unavailable: {e}") from e

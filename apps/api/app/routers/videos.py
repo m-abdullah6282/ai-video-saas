@@ -5,6 +5,8 @@ from app.rag.generation import generate_script, GENERATION_MODEL
 from app.rag.embeddings import EMBEDDING_MODEL
 from app.rag.reuse_score import calculate_reuse_score
 from app.providers.decision_engine import choose_best_provider
+from app.rag.video_store import save_video
+
 
 router = APIRouter(prefix="/videos", tags=["videos"])
 
@@ -27,19 +29,24 @@ async def video_plan(request: VideoPlanRequest):
 
     script = await generate_script(request.query, retrieved)
 
+    # Naya — video ko save karo
+    import uuid
+    video_id = str(uuid.uuid4())[:8]
+    save_video(
+        video_id=video_id,
+        title=request.query[:50],
+        sector=request.sector or "Other",
+        status="ready_for_review",
+        reuse_percentage=reuse_pct,
+        cost=final_cost,
+        script=script,
+    )
+
     return {
+        "video_id": video_id,
         "reuse_analysis": reuse_info,
         "provider_decision": provider_choice,
-        "cost_analysis": {
-            "base_cost": base_cost,
-            "final_estimated_cost": final_cost,
-            "saving": saving,
-            "saving_percentage": reuse_pct,
-        },
-        "models_used": {
-            "embedding_model": EMBEDDING_MODEL,
-            "generation_model": GENERATION_MODEL,
-        },
+        "cost_analysis": {"base_cost": base_cost, "final_estimated_cost": final_cost, "saving": saving, "saving_percentage": reuse_pct},
         "generated_script": script,
         "based_on": [r["id"] for r in retrieved],
-    }   
+    }

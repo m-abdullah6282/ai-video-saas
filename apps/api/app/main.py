@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import dashboard, assets, videos
 from app.rag.asset_store import init_db
+from app.rag.video_store import init_video_db
 
 app = FastAPI(title="AI Video Creation SaaS API")
 
@@ -14,6 +15,7 @@ app.add_middleware(
 )
 
 init_db()
+init_video_db()
 
 app.include_router(dashboard.router)
 app.include_router(assets.router)
