@@ -1,93 +1,129 @@
 # AI Video Creation SaaS Platform
 
-A multi-tenant SaaS platform that orchestrates AI video generation across multiple
-third-party providers (HeyGen, Synthesia, Creatify) while maximizing reuse of
-previously generated assets to reduce cost.
+A multi-tenant SaaS platform that orchestrates AI video generation across
+multiple third-party providers (HeyGen, Synthesia, Creatify) while
+maximizing reuse of previously generated assets through a RAG-based
+intelligence layer — reducing cost and increasing consistency.
 
 > **Core principle:** `SEARCH → REUSE → ADAPT → GENERATE`
-> Before calling any paid AI provider, the system searches its internal asset
-> library (RAG) to see what can be reused. Only the missing pieces are generated.
+> Before calling any paid AI provider, the system searches its internal
+> asset library (RAG) for reusable content, calculates a cost-saving
+> estimate, picks the most cost-effective provider, and generates only
+> what's missing.
 
 ---
 
-## 1. What this platform actually does
+## Live Demo Flow (Tested & Working)
 
-This is **not** an AI video generator. It is an **orchestration and reuse engine**
-that sits on top of external AI video providers.
+A single API call (`POST /videos/plan`) demonstrates the full pipeline:
 
-```
-User Request
-   → Understand the brief
-   → Search internal asset library (RAG)
-   → Determine what can be reused
-   → Determine what must be generated
-   → Pick the best provider for the missing pieces
-   → Estimate cost
-   → Generate only what's needed
-   → Assemble final video
-   → Store all reusable components back into the RAG
+```json
+// Request
+{
+  "query": "Create a safeguarding video for adult care workers",
+  "sector": "Adult Care"
+}
 ```
 
-The more videos created, the more valuable the internal library becomes, and the
-less the platform depends on paying external providers to regenerate content
-that already exists.
-
-## 2. Why multi-tenant matters
-
-Every organization (tenant) that signs up gets a **completely isolated** asset
-library. Two organizations sending the identical prompt will never see each
-other's avatars, backgrounds, scripts, or generated videos — even though both
-may be using the same underlying providers. Only the **provider's public
-catalog** (e.g. HeyGen's globally available avatars) is shared; everything an
-organization generates or stores is private to that organization.
-
-## 3. Repo structure
-
-```
-ai-video-saas/
-├── apps/
-│   ├── web/           # Next.js — prototype UI (Phase 1: mocked data, no real API calls)
-│   └── api/            # Node.js backend (plain JavaScript)
-│       └── src/providers/  # Provider Adapter Pattern (see docs/ARCHITECTURE.md)
-├── packages/
-│   └── shared-types/    # Shared JS shapes (documented via JSDoc) used by both web and api
-├── docs/
-│   └── ARCHITECTURE.md  # Deep-dive on RAG design, provider adapters, cost engine
-├── .github/workflows/   # CI — tests run automatically on every push (mandatory from Day 1)
-└── docker-compose.yml   # Local Postgres + services for development
+```json
+// Response (abbreviated)
+{
+  "reuse_analysis": { "reuse_percentage": 73, "usable_assets": [...] },
+  "provider_decision": { "recommended_provider": "heygen", "recommended_cost": 4.7 },
+  "cost_analysis": { "base_cost": 4.7, "final_estimated_cost": 1.27, "saving": 3.43 },
+  "models_used": { "embedding_model": "models/gemini-embedding-001", "generation_model": "gemini-3.6-flash" },
+  "generated_script": "..."
+}
 ```
 
-## 4. Development phases (see docs/ARCHITECTURE.md for detail)
+**What happened behind this one call:**
+1. Query embedded (Gemini) → semantically searched against stored assets (SQLite)
+2. Sector-filtered, then ranked by cosine similarity
+3. Reuse-percentage calculated from match quality
+4. Cost compared across mock providers (HeyGen, Synthesia) — cheapest chosen
+5. Reuse-percentage applied as a cost discount
+6. LLM generated a new script using retrieved past scripts as context (RAG)
 
-| Phase | Goal |
+---
+
+## Tech Stack
+
+| Layer | Technology |
 |---|---|
-| 0 | Requirements understanding, repo/CI setup |
-| 1 | Clickable prototype — mocked data, no real provider calls |
-| 2 | Core backend — DB schema, multi-tenant isolation, provider adapters |
-| 3 | RAG intelligence layer — semantic search, reuse scoring |
-| 4 | Real provider integration (HeyGen/Synthesia/Creatify) + webhooks |
-| 5 | Security — auth, RBAC, IP restriction, audit trail |
-| 6 | AWS deployment — dev → staging → production pipeline |
+| Frontend | React + Vite (JavaScript) |
+| Backend | FastAPI (Python) |
+| Embeddings | Google Gemini (`gemini-embedding-001`) |
+| Generation | Google Gemini (`gemini-3.6-flash`) |
+| Storage (assets/vectors) | SQLite (JSON-serialized embeddings) |
+| Similarity search | NumPy (cosine similarity, in-process) |
 
-We are currently in **Phase 0 → Phase 1**.
+---
 
-## 5. Local setup
+## Repo Structure
 
+ai-video-saas-repo/
+├── apps/
+│ ├── web/ # React + Vite frontend — dashboard, wizard, library (mock data)
+│ └── api/ # FastAPI backend
+│ └── app/
+│ ├── main.py # Entry point, mounts all routers
+│ ├── schemas.py # Pydantic request/response models
+│ ├── routers/ # dashboard.py, assets.py, videos.py
+│ ├── providers/ # Provider adapter pattern (base.py + HeyGen/Synthesia/Creatify mocks)
+│ └── rag/ # embeddings.py, asset_store.py, retrieval.py, generation.py, reuse_score.py
+├── docs/ARCHITECTURE.md # Design decisions and reasoning
+└── docker-compose.yml # Postgres config (not currently used — SQLite chosen instead)
+
+
+---
+
+## What's Built
+
+- ✅ RAG pipeline: embedding generation, persistent vector storage, sector-filtered semantic search
+- ✅ Reuse-percentage calculation (brief Section 5/8)
+- ✅ Provider Adapter Pattern — HeyGen, Synthesia (Creatify pending)
+- ✅ Multi-provider cost comparison + decision engine (Section 11)
+- ✅ Cost optimisation engine — reuse-based savings (Section 13)
+- ✅ RAG-based script generation (retrieved context → LLM)
+- ✅ Input validation and error handling on core AI functions
+
+## Not Yet Built
+
+- Remaining wizard steps (currently: Sector selection only, 1 of 9)
+- Frontend ↔ backend connection (frontend still runs on mock data)
+- Real provider API integration (currently mocked)
+- Authentication, multi-tenancy enforcement, RBAC
+- Super Admin / RAG management UI
+- AWS deployment, CI/CD test suite
+- Video versioning, audit trail, notifications
+
+---
+
+## Local Setup
+
+### Backend
 ```bash
-git clone <this-repo>
-cd ai-video-saas
+cd apps/api
+python -m venv venv
+venv\Scripts\activate          # Windows
+pip install -r requirements.txt
+# Create .env with GOOGLE_API_KEY=your-key (see .env.example)
+uvicorn app.main:app --reload --port 8000
+```
+Visit `http://localhost:8000/docs` for interactive API testing.
+
+### Frontend
+```bash
+cd apps/web
 npm install
-docker-compose up -d     # starts local Postgres
-npm run dev               # starts web + api together
+npm run dev
 ```
+Visit `http://localhost:5173`.
 
-## 6. Contributing / branching rules
+---
 
-```
-feature-branch → Pull Request → Automated Tests → Code Review → staging → production
-```
-No one pushes directly to `main`/production. See `.github/workflows/ci.yml`.
+## Architecture Notes
 
-## 7. License
-
-TBD.
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for detailed reasoning
+on the provider adapter pattern, multi-tenant isolation design, and
+RAG pipeline decisions.
