@@ -1,15 +1,9 @@
 import { useState } from "react";
+import { fetchVideoPlan } from "../lib/api";
 
 const STEPS = [
-  "Sector",
-  "Country",
-  "Audience",
-  "Tone",
-  "Culture",
-  "Video Type",
-  "Format",
-  "Duration",
-  "Description",
+  "Sector", "Country", "Audience", "Tone", "Culture",
+  "Video Type", "Format", "Duration", "Description",
 ];
 
 const OPTIONS = {
@@ -27,6 +21,9 @@ export default function CreateVideo() {
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
   const currentStep = STEPS[stepIndex];
   const isLastStep = stepIndex === STEPS.length - 1;
@@ -39,14 +36,53 @@ export default function CreateVideo() {
     setAnswers({ ...answers, [currentStep]: option });
   };
 
-  const goNext = () => {
-    if (!isLastStep) setStepIndex(stepIndex + 1);
-    else console.log("Wizard complete:", { ...answers, Description: description });
+  const goNext = async () => {
+    if (!isLastStep) {
+      setStepIndex(stepIndex + 1);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await fetchVideoPlan(description, answers.Sector);
+      setResult(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const goBack = () => {
     if (stepIndex > 0) setStepIndex(stepIndex - 1);
   };
+
+  if (result) {
+    return (
+      <div>
+        <h1 className="text-3xl font-display font-semibold mb-6">Video Plan Ready</h1>
+
+        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 mb-4">
+          <div className="text-sm text-white/50 mb-1">Reuse Analysis</div>
+          <div className="text-2xl font-display">{result.reuse_analysis.reuse_percentage}% reusable</div>
+        </div>
+
+        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 mb-4">
+          <div className="text-sm text-white/50 mb-1">Recommended Provider</div>
+          <div className="text-2xl font-display">{result.provider_decision.recommended_provider}</div>
+          <div className="text-sm text-white/50 mt-1">
+            £{result.cost_analysis.final_estimated_cost} (saved £{result.cost_analysis.saving})
+          </div>
+        </div>
+
+        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5">
+          <div className="text-sm text-white/50 mb-2">Generated Script</div>
+          <pre className="whitespace-pre-wrap text-sm">{result.generated_script}</pre>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -81,21 +117,20 @@ export default function CreateVideo() {
         </div>
       )}
 
+      {error && <p className="text-error mb-4">{error}</p>}
+
       <div className="flex gap-3">
         {stepIndex > 0 && (
-          <button
-            onClick={goBack}
-            className="border border-white/20 text-white px-5 py-2.5 rounded-lg hover:border-white/40"
-          >
+          <button onClick={goBack} className="border border-white/20 text-white px-5 py-2.5 rounded-lg hover:border-white/40">
             ← Back
           </button>
         )}
         <button
           onClick={goNext}
-          disabled={!canProceed}
+          disabled={!canProceed || loading}
           className="bg-neon-green text-black font-medium px-5 py-2.5 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          {isLastStep ? "Create Video →" : "Next →"}
+          {loading ? "Generating..." : isLastStep ? "Create Video →" : "Next →"}
         </button>
       </div>
     </div>
