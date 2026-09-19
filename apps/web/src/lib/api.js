@@ -64,3 +64,40 @@ export async function register(email, password, organizationId) {
   localStorage.setItem("token", data.access_token);
   return data;
 }
+
+export async function fetchAdminOrganizations() {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE}/admin/organizations`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error(`API error: ${response.status}`);
+  return response.json();
+}
+
+export async function fetchAdminVideos() {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE}/admin/videos`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error(`API error: ${response.status}`);
+  return response.json();
+}
+
+export async function fetchAdminAssets() {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE}/admin/assets`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error(`API error: ${response.status}`);
+  return response.json();
+}
+
+export async function deleteAdminAsset(assetId) {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE}/admin/assets/${assetId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error(`API error: ${response.status}`);
+  return response.json();
+}

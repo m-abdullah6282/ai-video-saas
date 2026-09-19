@@ -3,6 +3,7 @@ import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import CreateVideo from "./pages/CreateVideo";
 import VideoLibrary from "./pages/VideoLibrary";
+import AdminPanel from "./pages/AdminPanel";
 import Login from "./pages/Login";
 
 function ProtectedRoute({ children }) {
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/create" element={<CreateVideo />} />
           <Route path="/library" element={<VideoLibrary />} />
+          <Route path="/admin" element={<AdminPanel />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from jose import jwt
 from passlib.context import CryptContext
-from fastapi import Header, HTTPException
+from fastapi import Header, HTTPException, Depends
 
 load_dotenv()
 
@@ -22,16 +22,16 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(email: str, organization_id: str) -> str:
+def create_access_token(email: str, organization_id: str, role: str) -> str:
     expire = datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
-    payload = {"sub": email, "org": organization_id, "exp": expire}
+    payload = {"sub": email, "org": organization_id, "role": role, "exp": expire}
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
 def decode_access_token(token: str) -> dict | None:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return {"email": payload.get("sub"), "organization_id": payload.get("org")}
+        return {"email": payload.get("sub"), "organization_id": payload.get("org"), "role": payload.get("role")}
     except Exception:
         return None
 
@@ -46,3 +46,9 @@ async def get_current_user(authorization: str = Header(None)) -> dict:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
     return user_data
+
+
+async def require_admin(current_user: dict = Depends(get_current_user)) -> dict:
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user

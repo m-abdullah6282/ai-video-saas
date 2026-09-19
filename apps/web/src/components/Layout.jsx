@@ -1,10 +1,11 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { LayoutDashboard, VideoIcon, Library } from "lucide-react";
+import { LayoutDashboard, VideoIcon, Library, Shield } from "lucide-react";
 
 const navItems = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
   { path: "/create", label: "Create Video", icon: VideoIcon },
   { path: "/library", label: "Video Library", icon: Library },
+  { path: "/admin", label: "Admin Panel", icon: Shield },
 ];
 
 export default function Layout() {
