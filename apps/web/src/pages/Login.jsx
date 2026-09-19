@@ -6,6 +6,7 @@ export default function Login() {
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [organizationId, setOrganizationId] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ export default function Login() {
     setError(null);
     try {
       if (isRegister) {
-        await register(email, password);
+        await register(email, password, organizationId);
       } else {
         await login(email, password);
       }
@@ -51,8 +52,19 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full bg-white/[0.03] border border-white/10 rounded-lg p-3 mb-4 text-white placeholder-white/30 focus:border-neon-green outline-none"
+            className="w-full bg-white/[0.03] border border-white/10 rounded-lg p-3 mb-3 text-white placeholder-white/30 focus:border-neon-green outline-none"
           />
+
+          {isRegister && (
+            <input
+              type="text"
+              placeholder="Organization Name (e.g. my-company)"
+              value={organizationId}
+              onChange={(e) => setOrganizationId(e.target.value)}
+              required
+              className="w-full bg-white/[0.03] border border-white/10 rounded-lg p-3 mb-4 text-white placeholder-white/30 focus:border-neon-green outline-none"
+            />
+          )}
 
           {error && <p className="text-error text-sm mb-4">{error}</p>}
 
