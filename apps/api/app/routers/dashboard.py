@@ -14,3 +14,9 @@ async def get_dashboard_stats():
 async def get_recent_videos():
     videos = get_all_videos()[:5]
     return videos
+
+from app.rag.video_store import get_all_videos
+
+@router.get("/library")
+async def get_video_library():
+    return get_all_videos()

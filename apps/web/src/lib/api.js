@@ -21,3 +21,8 @@ export async function fetchRecentVideos() {
   if (!response.ok) throw new Error(`API error: ${response.status}`);
   return response.json();
 }
+export async function fetchVideoLibrary() {
+  const response = await fetch(`${API_BASE}/videos/library`);
+  if (!response.ok) throw new Error(`API error: ${response.status}`);
+  return response.json();
+}

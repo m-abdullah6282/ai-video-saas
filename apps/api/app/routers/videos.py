@@ -50,3 +50,8 @@ async def video_plan(request: VideoPlanRequest):
         "generated_script": script,
         "based_on": [r["id"] for r in retrieved],
     }
+from app.rag.video_store import get_all_videos
+
+@router.get("/library")
+async def get_video_library():
+    return get_all_videos()
