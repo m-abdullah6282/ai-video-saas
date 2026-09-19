@@ -1,12 +1,12 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from app.rag.retrieval import search_similar_assets
-from app.rag.generation import generate_script, GENERATION_MODEL
-from app.rag.embeddings import EMBEDDING_MODEL
+from app.rag.generation import generate_script
 from app.rag.reuse_score import calculate_reuse_score
 from app.providers.decision_engine import choose_best_provider
-from app.rag.video_store import save_video
-
+from app.rag.video_store import save_video, get_all_videos
+from app.auth import get_current_user
+import uuid
 
 router = APIRouter(prefix="/videos", tags=["videos"])
 
@@ -17,7 +17,7 @@ class VideoPlanRequest(BaseModel):
 
 
 @router.post("/plan")
-async def video_plan(request: VideoPlanRequest):
+async def video_plan(request: VideoPlanRequest, current_user: str = Depends(get_current_user)):
     retrieved = await search_similar_assets(request.query, sector=request.sector, top_k=3)
     reuse_info = calculate_reuse_score(retrieved)
     provider_choice = await choose_best_provider({"description": request.query})
@@ -29,8 +29,6 @@ async def video_plan(request: VideoPlanRequest):
 
     script = await generate_script(request.query, retrieved)
 
-    # Naya — video ko save karo
-    import uuid
     video_id = str(uuid.uuid4())[:8]
     save_video(
         video_id=video_id,
@@ -50,8 +48,8 @@ async def video_plan(request: VideoPlanRequest):
         "generated_script": script,
         "based_on": [r["id"] for r in retrieved],
     }
-from app.rag.video_store import get_all_videos
+
 
 @router.get("/library")
-async def get_video_library():
+async def get_video_library(current_user: str = Depends(get_current_user)):
     return get_all_videos()

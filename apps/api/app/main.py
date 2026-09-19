@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import dashboard, assets, videos
+from app.routers import dashboard, assets, videos, auth
 from app.rag.asset_store import init_db
 from app.rag.video_store import init_video_db
+from app.routers.auth import init_users_db
 
 app = FastAPI(title="AI Video Creation SaaS API")
 
@@ -16,10 +17,12 @@ app.add_middleware(
 
 init_db()
 init_video_db()
+init_users_db()
 
 app.include_router(dashboard.router)
 app.include_router(assets.router)
 app.include_router(videos.router)
+app.include_router(auth.router)
 
 
 @app.get("/")
