@@ -17,8 +17,10 @@ class VideoPlanRequest(BaseModel):
 
 
 @router.post("/plan")
-async def video_plan(request: VideoPlanRequest, current_user: str = Depends(get_current_user)):
-    retrieved = await search_similar_assets(request.query, sector=request.sector, top_k=3)
+async def video_plan(request: VideoPlanRequest, current_user: dict = Depends(get_current_user)):
+    org_id = current_user["organization_id"]
+
+    retrieved = await search_similar_assets(request.query, organization_id=org_id, sector=request.sector, top_k=3)
     reuse_info = calculate_reuse_score(retrieved)
     provider_choice = await choose_best_provider({"description": request.query})
 
@@ -32,6 +34,7 @@ async def video_plan(request: VideoPlanRequest, current_user: str = Depends(get_
     video_id = str(uuid.uuid4())[:8]
     save_video(
         video_id=video_id,
+        organization_id=org_id,
         title=request.query[:50],
         sector=request.sector or "Other",
         status="ready_for_review",
@@ -51,5 +54,5 @@ async def video_plan(request: VideoPlanRequest, current_user: str = Depends(get_
 
 
 @router.get("/library")
-async def get_video_library(current_user: str = Depends(get_current_user)):
-    return get_all_videos()
+async def get_video_library(current_user: dict = Depends(get_current_user)):
+    return get_all_videos(current_user["organization_id"])

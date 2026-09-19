@@ -13,7 +13,8 @@ def init_users_db():
     conn.execute("""
         CREATE TABLE IF NOT EXISTS users (
             email TEXT PRIMARY KEY,
-            hashed_password TEXT NOT NULL
+            hashed_password TEXT NOT NULL,
+            organization_id TEXT NOT NULL
         )
     """)
     conn.commit()
@@ -23,6 +24,7 @@ def init_users_db():
 class RegisterRequest(BaseModel):
     email: str
     password: str
+    organization_id: str
 
 
 class LoginRequest(BaseModel):
@@ -39,22 +41,27 @@ async def register(request: RegisterRequest):
         raise HTTPException(status_code=400, detail="Email already registered")
 
     hashed = hash_password(request.password)
-    conn.execute("INSERT INTO users (email, hashed_password) VALUES (?, ?)", (request.email, hashed))
+    conn.execute(
+        "INSERT INTO users (email, hashed_password, organization_id) VALUES (?, ?, ?)",
+        (request.email, hashed, request.organization_id),
+    )
     conn.commit()
     conn.close()
 
-    token = create_access_token(request.email)
+    token = create_access_token(request.email, request.organization_id)
     return {"access_token": token, "token_type": "bearer"}
 
 
 @router.post("/login")
 async def login(request: LoginRequest):
     conn = sqlite3.connect(DB_PATH)
-    row = conn.execute("SELECT hashed_password FROM users WHERE email = ?", (request.email,)).fetchone()
+    row = conn.execute(
+        "SELECT hashed_password, organization_id FROM users WHERE email = ?", (request.email,)
+    ).fetchone()
     conn.close()
 
     if not row or not verify_password(request.password, row[0]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    token = create_access_token(request.email)
+    token = create_access_token(request.email, row[1])
     return {"access_token": token, "token_type": "bearer"}

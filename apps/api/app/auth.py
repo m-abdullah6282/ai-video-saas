@@ -22,27 +22,27 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(email: str) -> str:
+def create_access_token(email: str, organization_id: str) -> str:
     expire = datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
-    payload = {"sub": email, "exp": expire}
+    payload = {"sub": email, "org": organization_id, "exp": expire}
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def decode_access_token(token: str) -> str | None:
+def decode_access_token(token: str) -> dict | None:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload.get("sub")
+        return {"email": payload.get("sub"), "organization_id": payload.get("org")}
     except Exception:
         return None
 
 
-async def get_current_user(authorization: str = Header(None)) -> str:
+async def get_current_user(authorization: str = Header(None)) -> dict:
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid authorization header")
 
     token = authorization.replace("Bearer ", "")
-    email = decode_access_token(token)
-    if not email:
+    user_data = decode_access_token(token)
+    if not user_data or not user_data["email"]:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
-    return email
+    return user_data

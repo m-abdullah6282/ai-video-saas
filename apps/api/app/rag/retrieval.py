@@ -10,28 +10,21 @@ def cosine_similarity(vec_a: list[float], vec_b: list[float]) -> float:
 
 
 async def search_similar_assets(
-    query: str, sector: str | None = None, top_k: int = 3
+    query: str, organization_id: str, sector: str | None = None, top_k: int = 3
 ) -> list[dict]:
-    """
-    Given a text query, returns the top_k most semantically similar
-    assets from the store, ranked by similarity score.
+    if not query or not query.strip():
+        raise ValueError("Query cannot be empty")
+    if top_k < 1:
+        raise ValueError("top_k must be at least 1")
 
-    If `sector` is given, only assets matching that sector are
-    considered — this is a HARD FILTER applied before ranking,
-    so an irrelevant-sector asset can never outrank a relevant one
-    just because it happens to have a high embedding similarity.
-    """
     query_embedding = await get_embedding(query, task_type="RETRIEVAL_QUERY")
+    all_assets = get_all_assets(organization_id)
 
-    all_assets = get_all_assets()
-
-    # STEP 1: HARD FILTER — sector must match, if one was given
     if sector is not None:
         candidates = [a for a in all_assets if a["sector"] == sector]
-    else: 
+    else:
         candidates = all_assets
 
-    # STEP 2: SOFT RANKING — only now do we compute similarity
     scored_assets = []
     for asset in candidates:
         score = cosine_similarity(query_embedding, asset["embedding"])
@@ -43,5 +36,4 @@ async def search_similar_assets(
         })
 
     scored_assets.sort(key=lambda a: a["similarity"], reverse=True)
-
     return scored_assets[:top_k]

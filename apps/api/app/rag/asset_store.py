@@ -5,15 +5,11 @@ DB_PATH = "assets.db"
 
 
 def init_db():
-    """
-    Creates the assets table if it doesn't already exist.
-    Safe to call every time the app starts — CREATE TABLE IF NOT
-    EXISTS won't touch existing data.
-    """
     conn = sqlite3.connect(DB_PATH)
     conn.execute("""
         CREATE TABLE IF NOT EXISTS assets (
             id TEXT PRIMARY KEY,
+            organization_id TEXT NOT NULL,
             text TEXT NOT NULL,
             sector TEXT NOT NULL,
             embedding TEXT NOT NULL
@@ -23,19 +19,22 @@ def init_db():
     conn.close()
 
 
-def add_asset(asset_id: str, text: str, sector: str, embedding: list[float]):
+def add_asset(asset_id: str, organization_id: str, text: str, sector: str, embedding: list[float]):
     conn = sqlite3.connect(DB_PATH)
     conn.execute(
-        "INSERT OR REPLACE INTO assets (id, text, sector, embedding) VALUES (?, ?, ?, ?)",
-        (asset_id, text, sector, json.dumps(embedding)),
+        "INSERT OR REPLACE INTO assets (id, organization_id, text, sector, embedding) VALUES (?, ?, ?, ?, ?)",
+        (asset_id, organization_id, text, sector, json.dumps(embedding)),
     )
     conn.commit()
     conn.close()
 
 
-def get_all_assets() -> list[dict]:
+def get_all_assets(organization_id: str) -> list[dict]:
     conn = sqlite3.connect(DB_PATH)
-    rows = conn.execute("SELECT id, text, sector, embedding FROM assets").fetchall()
+    rows = conn.execute(
+        "SELECT id, text, sector, embedding FROM assets WHERE organization_id = ?",
+        (organization_id,),
+    ).fetchall()
     conn.close()
 
     return [

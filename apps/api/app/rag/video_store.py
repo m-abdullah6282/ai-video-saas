@@ -2,7 +2,7 @@ import sqlite3
 import json
 from datetime import datetime
 
-DB_PATH = "assets.db"  # same database file, naya table
+DB_PATH = "assets.db"
 
 
 def init_video_db():
@@ -10,6 +10,7 @@ def init_video_db():
     conn.execute("""
         CREATE TABLE IF NOT EXISTS videos (
             id TEXT PRIMARY KEY,
+            organization_id TEXT NOT NULL,
             title TEXT NOT NULL,
             sector TEXT,
             country TEXT,
@@ -24,23 +25,24 @@ def init_video_db():
     conn.close()
 
 
-def save_video(video_id: str, title: str, sector: str, status: str,
+def save_video(video_id: str, organization_id: str, title: str, sector: str, status: str,
                 reuse_percentage: int, cost: float, script: str):
     conn = sqlite3.connect(DB_PATH)
     conn.execute(
-        """INSERT INTO videos (id, title, sector, country, status, created_at, reuse_percentage, cost, script)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (video_id, title, sector, "UK", status, datetime.now().strftime("%Y-%m-%d"),
+        """INSERT INTO videos (id, organization_id, title, sector, country, status, created_at, reuse_percentage, cost, script)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (video_id, organization_id, title, sector, "UK", status, datetime.now().strftime("%Y-%m-%d"),
          reuse_percentage, cost, script),
     )
     conn.commit()
     conn.close()
 
 
-def get_all_videos() -> list[dict]:
+def get_all_videos(organization_id: str) -> list[dict]:
     conn = sqlite3.connect(DB_PATH)
     rows = conn.execute(
-        "SELECT id, title, sector, country, status, created_at, reuse_percentage, cost FROM videos ORDER BY created_at DESC"
+        "SELECT id, title, sector, country, status, created_at, reuse_percentage, cost FROM videos WHERE organization_id = ? ORDER BY created_at DESC",
+        (organization_id,),
     ).fetchall()
     conn.close()
 
@@ -53,10 +55,11 @@ def get_all_videos() -> list[dict]:
     ]
 
 
-def get_dashboard_stats() -> dict:
+def get_dashboard_stats(organization_id: str) -> dict:
     conn = sqlite3.connect(DB_PATH)
     row = conn.execute(
-        "SELECT COUNT(*), COALESCE(SUM(cost), 0), AVG(reuse_percentage) FROM videos"
+        "SELECT COUNT(*), COALESCE(SUM(cost), 0), AVG(reuse_percentage) FROM videos WHERE organization_id = ?",
+        (organization_id,),
     ).fetchone()
     conn.close()
 
@@ -64,6 +67,6 @@ def get_dashboard_stats() -> dict:
     return {
         "videos_this_month": count,
         "ai_spend_this_month": round(total_spend, 2),
-        "rag_savings_this_month": 0.0,  # placeholder — could compute from base_cost - final_cost later
+        "rag_savings_this_month": 0.0,
         "overall_reuse_rate": round(avg_reuse) if avg_reuse else 0,
     }
