@@ -36,4 +36,3 @@ async def search_similar_assets(
 
     scored_assets.sort(key=lambda a: a["similarity"], reverse=True)
     return scored_assets[:top_k]
-#admib pannel done
