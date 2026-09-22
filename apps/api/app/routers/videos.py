@@ -20,9 +20,16 @@ class VideoPlanRequest(BaseModel):
 async def video_plan(request: VideoPlanRequest, current_user: dict = Depends(get_current_user)):
     org_id = current_user["organization_id"]
 
-    retrieved = await search_similar_assets(request.query, organization_id=org_id, sector=request.sector, top_k=3)
+    retrieved = await search_similar_assets(request.query, organization_id=org_id, sector=request.sector, top_k=3, asset_type="script")
     reuse_info = calculate_reuse_score(retrieved)
     provider_choice = await choose_best_provider({"description": request.query})
+
+    # Naya — avatar aur background recommend karo
+    avatar_matches = await search_similar_assets(request.query, organization_id=org_id, sector=request.sector, top_k=1, asset_type="avatar")
+    background_matches = await search_similar_assets(request.query, organization_id=org_id, sector=request.sector, top_k=1, asset_type="background")
+
+    recommended_avatar = avatar_matches[0] if avatar_matches else None
+    recommended_background = background_matches[0] if background_matches else None
 
     reuse_pct = reuse_info["reuse_percentage"]
     base_cost = provider_choice["recommended_cost"]
@@ -48,6 +55,8 @@ async def video_plan(request: VideoPlanRequest, current_user: dict = Depends(get
         "reuse_analysis": reuse_info,
         "provider_decision": provider_choice,
         "cost_analysis": {"base_cost": base_cost, "final_estimated_cost": final_cost, "saving": saving, "saving_percentage": reuse_pct},
+        "recommended_avatar": recommended_avatar,
+        "recommended_background": recommended_background,
         "generated_script": script,
         "based_on": [r["id"] for r in retrieved],
     }

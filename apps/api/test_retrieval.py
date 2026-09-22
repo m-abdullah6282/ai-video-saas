@@ -17,12 +17,12 @@ async def main():
 
     for asset_id, text, sector in sample_scripts:
         embedding = await get_embedding(text, task_type="RETRIEVAL_DOCUMENT")
-        add_asset(asset_id, text, sector, embedding)
+        add_asset(asset_id, "org-1", text, sector, embedding, "script")
 
     print("Assets added. Now searching WITH sector filter...\n")
 
-    query = "Hpw are you"
-    results = await search_similar_assets(query, sector="Adult Care", top_k=3)
+    query = "Create a safeguarding video for adult care workers"
+    results = await search_similar_assets(query, organization_id="org-1", sector="Adult Care", top_k=3)
 
     print(f"Query: {query}  (sector filter: Adult Care)\n")
     for r in results:

@@ -76,6 +76,22 @@ export default function CreateVideo() {
           </div>
         </div>
 
+        {result.recommended_avatar && (
+          <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 mb-4">
+            <div className="text-sm text-white/50 mb-1">Recommended Avatar</div>
+            <div className="font-medium">{result.recommended_avatar.id}</div>
+            <div className="text-sm text-white/50 mt-1">{result.recommended_avatar.text}</div>
+          </div>
+        )}
+
+        {result.recommended_background && (
+          <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 mb-4">
+            <div className="text-sm text-white/50 mb-1">Recommended Background</div>
+            <div className="font-medium">{result.recommended_background.id}</div>
+            <div className="text-sm text-white/50 mt-1">{result.recommended_background.text}</div>
+          </div>
+        )}
+
         <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5">
           <div className="text-sm text-white/50 mb-2">Generated Script</div>
           <pre className="whitespace-pre-wrap text-sm">{result.generated_script}</pre>
