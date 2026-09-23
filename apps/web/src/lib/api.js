@@ -101,3 +101,11 @@ export async function deleteAdminAsset(assetId) {
   if (!response.ok) throw new Error(`API error: ${response.status}`);
   return response.json();
 }
+export async function fetchAssetsByType(assetType) {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE}/assets/browse/${assetType}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error(`API error: ${response.status}`);
+  return response.json();
+}
