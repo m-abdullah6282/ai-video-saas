@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { VideoIcon, Wallet, PiggyBank, Recycle } from "lucide-react";
 import { fetchDashboardStats, fetchRecentVideos } from "../lib/api";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -59,7 +60,11 @@ export default function Dashboard() {
       <h2 className="text-lg font-display font-semibold mb-3">Recent Videos</h2>
       <div className="bg-white/[0.03] border border-white/10 rounded-xl divide-y divide-white/10">
         {videos.map((v) => (
-          <div key={v.id} className="p-4 flex justify-between items-center">
+          <Link
+            key={v.id}
+            to={`/library/${v.id}`}
+            className="p-4 flex justify-between items-center hover:bg-white/[0.02] transition"
+          >
             <div>
               <div className="font-medium">{v.title}</div>
               <div className="text-sm text-white/50">
@@ -72,7 +77,7 @@ export default function Dashboard() {
               </div>
               <div className="text-xs text-white/50 mt-1">{v.reuse_percentage}% reused</div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

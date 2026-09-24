@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { fetchVideoLibrary } from "../lib/api";
+import { Link } from "react-router-dom";
 
 export default function VideoLibrary() {
   const [videos, setVideos] = useState([]);
@@ -31,7 +32,11 @@ export default function VideoLibrary() {
       ) : (
         <div className="grid grid-cols-3 gap-4">
           {videos.map((v) => (
-            <div key={v.id} className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
+            <Link
+              key={v.id}
+              to={`/library/${v.id}`}
+              className="bg-white/[0.03] border border-white/10 rounded-xl p-4 hover:border-neon-green/50 transition block"
+            >
               <div className="h-32 bg-white/5 rounded-lg mb-3 flex items-center justify-center text-white/30 text-sm">
                 thumbnail placeholder
               </div>
@@ -40,7 +45,7 @@ export default function VideoLibrary() {
                 {v.sector} · {v.country}
               </div>
               <div className="text-xs text-neon-green mt-2">{v.reuse_percentage}% reused</div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

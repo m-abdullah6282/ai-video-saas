@@ -6,6 +6,8 @@ import VideoLibrary from "./pages/VideoLibrary";
 import AdminPanel from "./pages/AdminPanel";
 import Login from "./pages/Login";
 import AssetLibrary from "./pages/AssetLibrary";
+import VideoDetail from "./pages/VideoDetail";
+
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -29,6 +31,7 @@ export default function App() {
           <Route path="/library" element={<VideoLibrary />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/assets" element={<AssetLibrary />} />
+          <Route path="/library/:videoId" element={<VideoDetail />} />
         </Route>
       </Routes>
     </BrowserRouter>

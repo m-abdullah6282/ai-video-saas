@@ -109,3 +109,11 @@ export async function fetchAssetsByType(assetType) {
   if (!response.ok) throw new Error(`API error: ${response.status}`);
   return response.json();
 }
+export async function fetchVideoDetail(videoId) {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE}/videos/${videoId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error(`API error: ${response.status}`);
+  return response.json();
+}

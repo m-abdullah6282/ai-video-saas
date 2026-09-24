@@ -63,6 +63,24 @@ export default function CreateVideo() {
       <div>
         <h1 className="text-3xl font-display font-semibold mb-6">Video Plan Ready</h1>
 
+        <div className="bg-white/[0.03] border border-white/10 rounded-xl overflow-hidden mb-4">
+          <div className="aspect-video bg-black flex flex-col items-center justify-center p-8 relative border-b border-white/10">
+            <div className="absolute top-4 left-4 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse" />
+              <span className="text-xs text-white/50">PREVIEW</span>
+            </div>
+            <pre className="whitespace-pre-wrap text-sm text-white/90 max-h-full overflow-y-auto leading-relaxed">
+              {result.generated_script}
+            </pre>
+          </div>
+          <div className="p-4 flex items-center justify-between">
+            <div className="text-sm text-white/50">Script Preview — Video not yet rendered</div>
+            <div className="text-xs px-2 py-1 rounded bg-neon-green/10 text-neon-green">
+              Draft
+            </div>
+          </div>
+        </div>
+
         <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 mb-4">
           <div className="text-sm text-white/50 mb-1">Reuse Analysis</div>
           <div className="text-2xl font-display">{result.reuse_analysis.reuse_percentage}% reusable</div>
@@ -91,11 +109,6 @@ export default function CreateVideo() {
             <div className="text-sm text-white/50 mt-1">{result.recommended_background.text}</div>
           </div>
         )}
-
-        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5">
-          <div className="text-sm text-white/50 mb-2">Generated Script</div>
-          <pre className="whitespace-pre-wrap text-sm">{result.generated_script}</pre>
-        </div>
       </div>
     );
   }

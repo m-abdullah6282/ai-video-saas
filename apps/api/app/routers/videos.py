@@ -7,6 +7,9 @@ from app.providers.decision_engine import choose_best_provider
 from app.rag.video_store import save_video, get_all_videos
 from app.auth import get_current_user
 import uuid
+from app.rag.video_store import save_video, get_all_videos, add_video_version, get_video_versions, get_video_by_id
+from fastapi import HTTPException
+
 
 router = APIRouter(prefix="/videos", tags=["videos"])
 
@@ -65,3 +68,10 @@ async def video_plan(request: VideoPlanRequest, current_user: dict = Depends(get
 @router.get("/library")
 async def get_video_library(current_user: dict = Depends(get_current_user)):
     return get_all_videos(current_user["organization_id"])
+
+@router.get("/{video_id}")
+async def get_video_detail(video_id: str, current_user: dict = Depends(get_current_user)):
+    video = get_video_by_id(video_id, current_user["organization_id"])
+    if not video:
+        raise HTTPException(status_code=404, detail="Video not found")
+    return video
