@@ -7,6 +7,7 @@ from app.rag.admin_store import (
     delete_asset_admin,
     get_all_users_admin,
 )
+from app.providers.decision_engine import _providers
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -37,3 +38,11 @@ async def delete_asset(asset_id: str, admin: dict = Depends(require_admin)):
 @router.get("/users")
 async def list_users(admin: dict = Depends(require_admin)):
     return get_all_users_admin()
+
+
+@router.get("/providers")
+async def list_providers(admin: dict = Depends(require_admin)):
+    return [
+        {"provider": name, "status": "mock — no live API key configured"}
+        for name in _providers
+    ]

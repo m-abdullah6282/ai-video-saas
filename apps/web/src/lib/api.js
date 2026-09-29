@@ -1,5 +1,15 @@
 const API_BASE = "http://localhost:8000";
 
+function decodeJwtRole(token) {
+  try {
+    const payload = token.split(".")[1];
+    const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(json).role || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchVideoPlan(query, sector) {
   const token = localStorage.getItem("token");
   const response = await fetch(`${API_BASE}/videos/plan`, {
@@ -50,6 +60,8 @@ export async function login(email, password) {
   if (!response.ok) throw new Error("Invalid email or password");
   const data = await response.json();
   localStorage.setItem("token", data.access_token);
+  localStorage.setItem("role", decodeJwtRole(data.access_token) || "user");
+  localStorage.setItem("email", email);
   return data;
 }
 
@@ -62,6 +74,8 @@ export async function register(email, password, organizationId) {
   if (!response.ok) throw new Error("Registration failed");
   const data = await response.json();
   localStorage.setItem("token", data.access_token);
+  localStorage.setItem("role", decodeJwtRole(data.access_token) || "user");
+  localStorage.setItem("email", email);
   return data;
 }
 
@@ -109,6 +123,24 @@ export async function fetchAssetsByType(assetType) {
   if (!response.ok) throw new Error(`API error: ${response.status}`);
   return response.json();
 }
+export async function fetchAdminUsers() {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE}/admin/users`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error(`API error: ${response.status}`);
+  return response.json();
+}
+
+export async function fetchAdminProviders() {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE}/admin/providers`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error(`API error: ${response.status}`);
+  return response.json();
+}
+
 export async function fetchVideoDetail(videoId) {
   const token = localStorage.getItem("token");
   const response = await fetch(`${API_BASE}/videos/${videoId}`, {

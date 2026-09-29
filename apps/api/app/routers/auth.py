@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import sqlite3
+import os
 from app.auth import hash_password, verify_password, create_access_token
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -25,11 +26,31 @@ def init_users_db():
     conn.close()
 
 
+def seed_super_admin():
+    admin_email = os.getenv("SUPER_ADMIN_EMAIL")
+    admin_password = os.getenv("SUPER_ADMIN_PASSWORD")
+
+    if not admin_email or not admin_password:
+        return
+
+    conn = sqlite3.connect(DB_PATH)
+    existing = conn.execute("SELECT email FROM users WHERE email = ?", (admin_email,)).fetchone()
+
+    if not existing:
+        hashed = hash_password(admin_password)
+        conn.execute(
+            "INSERT INTO users (email, hashed_password, organization_id, role) VALUES (?, ?, ?, ?)",
+            (admin_email, hashed, "platform", "admin"),
+        )
+        conn.commit()
+
+    conn.close()
+
+
 class RegisterRequest(BaseModel):
     email: str
     password: str
     organization_id: str
-    role: str = "user"
 
 
 class LoginRequest(BaseModel):
@@ -48,12 +69,12 @@ async def register(request: RegisterRequest):
     hashed = hash_password(request.password)
     conn.execute(
         "INSERT INTO users (email, hashed_password, organization_id, role) VALUES (?, ?, ?, ?)",
-        (request.email, hashed, request.organization_id, request.role),
+        (request.email, hashed, request.organization_id, "user"),
     )
     conn.commit()
     conn.close()
 
-    token = create_access_token(request.email, request.organization_id, request.role)
+    token = create_access_token(request.email, request.organization_id, "user")
     return {"access_token": token, "token_type": "bearer"}
 
 

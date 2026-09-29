@@ -4,7 +4,7 @@ from app.routers import dashboard, assets, videos, auth, admin
 from app.rag.asset_store import init_db
 from app.rag.video_store import init_video_db
 from app.routers.auth import init_users_db
-
+from app.routers.auth import init_users_db, seed_super_admin
 app = FastAPI(title="AI Video Creation SaaS API")
 
 app.add_middleware(

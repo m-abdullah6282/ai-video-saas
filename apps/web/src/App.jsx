@@ -5,15 +5,22 @@ import CreateVideo from "./pages/CreateVideo";
 import VideoPlan from "./pages/VideoPlan";
 import CostEstimate from "./pages/CostEstimate";
 import VideoLibrary from "./pages/VideoLibrary";
-import AdminPanel from "./pages/AdminPanel";
 import Login from "./pages/Login";
 import AssetLibrary from "./pages/AssetLibrary";
 import VideoDetail from "./pages/VideoDetail";
-
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import UserManagement from "./pages/admin/UserManagement";
+import RagAssetLibrary from "./pages/admin/RagAssetLibrary";
+import ProviderManagement from "./pages/admin/ProviderManagement";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/login" />;
+}
+
+function AdminRoute({ children }) {
+  const role = localStorage.getItem("role");
+  return role === "admin" ? children : <Navigate to="/" />;
 }
 
 export default function App() {
@@ -33,9 +40,12 @@ export default function App() {
           <Route path="/create/plan" element={<VideoPlan />} />
           <Route path="/create/cost" element={<CostEstimate />} />
           <Route path="/library" element={<VideoLibrary />} />
-          <Route path="/admin" element={<AdminPanel />} />
           <Route path="/assets" element={<AssetLibrary />} />
           <Route path="/library/:videoId" element={<VideoDetail />} />
+          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+          <Route path="/admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
+          <Route path="/admin/assets" element={<AdminRoute><RagAssetLibrary /></AdminRoute>} />
+          <Route path="/admin/providers" element={<AdminRoute><ProviderManagement /></AdminRoute>} />
         </Route>
       </Routes>
     </BrowserRouter>

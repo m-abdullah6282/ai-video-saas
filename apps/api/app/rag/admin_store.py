@@ -43,11 +43,11 @@ def get_all_videos_admin() -> list[dict]:
 
 def get_all_assets_admin() -> list[dict]:
     conn = sqlite3.connect(DB_PATH)
-    rows = conn.execute("SELECT id, organization_id, text, sector FROM assets").fetchall()
+    rows = conn.execute("SELECT id, organization_id, text, sector, asset_type FROM assets").fetchall()
     conn.close()
 
     return [
-        {"id": r[0], "organization_id": r[1], "text": r[2], "sector": r[3]}
+        {"id": r[0], "organization_id": r[1], "text": r[2], "sector": r[3], "asset_type": r[4]}
         for r in rows
     ]
 
