@@ -1,12 +1,14 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { LayoutDashboard, VideoIcon, Library, Shield, Image } from "lucide-react";
+import { LayoutDashboard, VideoIcon, Library, Image, Mountain, BarChart2, Settings } from "lucide-react";
 
 const navItems = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
   { path: "/create", label: "Create Video", icon: VideoIcon },
   { path: "/library", label: "Video Library", icon: Library },
-  { path: "/assets", label: "Asset Library", icon: Image },
-  { path: "/admin", label: "Admin Panel", icon: Shield },
+  { path: "/assets?type=avatar", label: "Avatar Library", icon: Image },
+  { path: "/assets?type=background", label: "Backgrounds", icon: Mountain },
+  { path: "/reports", label: "Reports", icon: BarChart2 },
+  { path: "/settings", label: "Settings", icon: Settings },
 ];
 
 export default function Layout() {
@@ -15,12 +17,18 @@ export default function Layout() {
   return (
     <div className="min-h-screen flex bg-black text-white font-body">
       <aside className="w-56 bg-black border-r border-white/10 flex flex-col">
-        <div className="p-4 text-lg font-display font-semibold border-b border-white/10">
-          AI Video SaaS
+        <div className="p-4 flex items-center gap-2 border-b border-white/10">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-neon-green to-cyan-blue flex items-center justify-center">
+            <span className="text-black font-display font-bold text-sm">V</span>
+          </div>
+          <div>
+            <div className="text-sm font-display font-semibold leading-none">VEYRA</div>
+            <div className="text-[9px] text-white/40 tracking-widest">AI ORCHESTRATION</div>
+          </div>
         </div>
         <nav className="flex-1 p-2">
           {navItems.map((item) => {
-            const active = location.pathname === item.path;
+            const active = location.pathname === item.path.split("?")[0];
             const Icon = item.icon;
             return (
               <Link

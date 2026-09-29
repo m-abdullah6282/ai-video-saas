@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { VideoIcon, Wallet, PiggyBank, Recycle } from "lucide-react";
 import { fetchDashboardStats, fetchRecentVideos } from "../lib/api";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function loadData() {
@@ -31,54 +32,76 @@ export default function Dashboard() {
   if (error) return <p className="text-error">Failed to load dashboard: {error}</p>;
 
   const cards = [
-    { label: "Videos This Month", value: stats.videos_this_month, accent: "bg-neon-green", icon: VideoIcon },
-    { label: "AI Spend This Month", value: `£${stats.ai_spend_this_month.toFixed(2)}`, accent: "bg-cyan-blue", icon: Wallet },
-    { label: "RAG Savings This Month", value: `£${stats.rag_savings_this_month.toFixed(2)}`, accent: "bg-neon-green", icon: PiggyBank },
-    { label: "Overall Reuse Rate", value: `${stats.overall_reuse_rate}%`, accent: "bg-cyan-blue", icon: Recycle },
+    { label: "Videos Created (This Month)", value: stats.videos_this_month, icon: VideoIcon },
+    { label: "Total AI Spend (This Month)", value: `£${stats.ai_spend_this_month.toFixed(2)}`, icon: Wallet },
+    { label: "RAG Reusage Savings", value: `£${stats.rag_savings_this_month.toFixed(2)}`, icon: PiggyBank, sub: "Saved via local cache" },
+    { label: "Asset Reuse Rate", value: `${stats.overall_reuse_rate}%`, icon: Recycle },
   ];
 
   return (
     <div>
-      <h1 className="text-3xl font-display font-semibold mb-1">Dashboard</h1>
-      <p className="text-white/50 mb-8">Let's see how the library is performing.</p>
-
-      <div className="grid grid-cols-4 gap-4 mb-10">
-        {cards.map((c) => {
-          const Icon = c.icon;
-          return (
-            <div key={c.label} className="bg-white/[0.03] border border-white/10 rounded-xl p-5">
-              <div className={`w-9 h-9 rounded-lg ${c.accent} flex items-center justify-center mb-4`}>
-                <Icon size={18} strokeWidth={1.75} className="text-black" />
-              </div>
-              <div className="text-2xl font-display font-semibold">{c.value}</div>
-              <div className="text-sm text-white/50 mt-1">{c.label}</div>
-            </div>
-          );
-        })}
+      <div className="flex justify-between items-start mb-8">
+        <div>
+          <h1 className="text-2xl font-display font-semibold">Welcome back</h1>
+          <p className="text-white/40 text-sm mt-1">Veyra Orchestration Engine</p>
+        </div>
+        <button
+          onClick={() => navigate("/create")}
+          className="bg-neon-green text-black font-medium px-4 py-2 rounded-lg text-sm flex items-center gap-1"
+        >
+          + Create New Video
+        </button>
       </div>
 
-      <h2 className="text-lg font-display font-semibold mb-3">Recent Videos</h2>
-      <div className="bg-white/[0.03] border border-white/10 rounded-xl divide-y divide-white/10">
-        {videos.map((v) => (
-          <Link
-            key={v.id}
-            to={`/library/${v.id}`}
-            className="p-4 flex justify-between items-center hover:bg-white/[0.02] transition"
-          >
-            <div>
-              <div className="font-medium">{v.title}</div>
-              <div className="text-sm text-white/50">
-                {v.sector} · {v.country} · {v.created_at}
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm px-2 py-1 rounded bg-neon-green/10 text-neon-green inline-block">
-                {v.status}
-              </div>
-              <div className="text-xs text-white/50 mt-1">{v.reuse_percentage}% reused</div>
-            </div>
-          </Link>
+      <div className="grid grid-cols-4 gap-4 mb-8">
+        {cards.map((c) => (
+          <div key={c.label} className="bg-white/[0.02] border border-white/10 rounded-xl p-4">
+            <div className="text-xs text-white/40 mb-2">{c.label}</div>
+            <div className="text-2xl font-display font-semibold">{c.value}</div>
+            {c.sub && <div className="text-xs text-neon-green mt-1">{c.sub}</div>}
+          </div>
         ))}
+      </div>
+
+      <div className="grid grid-cols-3 gap-6">
+        <div className="col-span-2">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-lg font-display font-semibold">Recent Videos</h2>
+            <Link to="/library" className="text-xs text-cyan-blue">View Library</Link>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {videos.map((v) => (
+              <Link
+                key={v.id}
+                to={`/library/${v.id}`}
+                className="bg-white/[0.02] border border-white/10 rounded-xl overflow-hidden hover:border-neon-green/30 transition"
+              >
+                <div className="h-28 bg-white/5 flex items-center justify-center text-white/20 text-xs">
+                  thumbnail
+                </div>
+                <div className="p-3">
+                  <div className="flex gap-2 text-[10px] text-white/40 mb-1">
+                    <span>{v.sector}</span>
+                    <span>·</span>
+                    <span>{v.country}</span>
+                  </div>
+                  <div className="font-medium text-sm">{v.title}</div>
+                  <div className="text-[10px] text-neon-green mt-1">{v.status}</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent Activity — PLACEHOLDER, no backend audit-log yet */}
+        <div>
+          <h2 className="text-lg font-display font-semibold mb-3">Recent Activity</h2>
+          <div className="bg-white/[0.02] border border-white/10 rounded-xl p-4">
+            <p className="text-xs text-white/30 italic">
+              Activity feed requires audit-log backend (not yet built).
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

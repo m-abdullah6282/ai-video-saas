@@ -31,39 +31,55 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="w-full max-w-sm bg-white/[0.03] border border-white/10 rounded-xl p-8">
-        <h1 className="text-2xl font-display font-semibold mb-1 text-white">
-          {isRegister ? "Create Account" : "Sign In"}
-        </h1>
-        <p className="text-white/50 mb-6 text-sm">AI Video SaaS</p>
+      <div className="w-full max-w-sm bg-white/[0.02] border border-white/10 rounded-2xl p-8">
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-neon-green to-cyan-blue flex items-center justify-center mb-3">
+            <span className="text-black font-display font-bold text-xl">V</span>
+          </div>
+          <h1 className="text-xl font-display font-bold tracking-wide">VEYRA</h1>
+          <p className="text-xs text-neon-green tracking-widest mt-1">— AI VIDEO ORCHESTRATION —</p>
+        </div>
+
+        <div className="border-t border-white/10 mb-6" />
 
         <form onSubmit={handleSubmit}>
+          <label className="text-xs text-white/50 uppercase tracking-wide mb-1 block">Email Address</label>
           <input
             type="email"
-            placeholder="Email"
+            placeholder="operator@veyra.ai"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full bg-white/[0.03] border border-white/10 rounded-lg p-3 mb-3 text-white placeholder-white/30 focus:border-neon-green outline-none"
+            className="w-full bg-white/[0.03] border border-white/10 rounded-lg p-3 mb-4 text-sm text-white placeholder-white/30 focus:border-neon-green outline-none"
           />
+
+          <div className="flex justify-between items-center mb-1">
+            <label className="text-xs text-white/50 uppercase tracking-wide">Password</label>
+            {!isRegister && (
+              <span className="text-xs text-cyan-blue cursor-pointer">Forgot password?</span>
+            )}
+          </div>
           <input
             type="password"
-            placeholder="Password"
+            placeholder="••••••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full bg-white/[0.03] border border-white/10 rounded-lg p-3 mb-3 text-white placeholder-white/30 focus:border-neon-green outline-none"
+            className="w-full bg-white/[0.03] border border-neon-green/50 rounded-lg p-3 mb-4 text-sm text-white placeholder-white/30 focus:border-neon-green outline-none"
           />
 
           {isRegister && (
-            <input
-              type="text"
-              placeholder="Organization Name (e.g. my-company)"
-              value={organizationId}
-              onChange={(e) => setOrganizationId(e.target.value)}
-              required
-              className="w-full bg-white/[0.03] border border-white/10 rounded-lg p-3 mb-4 text-white placeholder-white/30 focus:border-neon-green outline-none"
-            />
+            <>
+              <label className="text-xs text-white/50 uppercase tracking-wide mb-1 block">Organization</label>
+              <input
+                type="text"
+                placeholder="my-company"
+                value={organizationId}
+                onChange={(e) => setOrganizationId(e.target.value)}
+                required
+                className="w-full bg-white/[0.03] border border-white/10 rounded-lg p-3 mb-4 text-sm text-white placeholder-white/30 focus:border-neon-green outline-none"
+              />
+            </>
           )}
 
           {error && <p className="text-error text-sm mb-4">{error}</p>}
@@ -71,18 +87,32 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-neon-green text-black font-medium py-3 rounded-lg disabled:opacity-30"
+            className="w-full bg-neon-green text-black font-medium py-3 rounded-lg mb-4 disabled:opacity-30 flex items-center justify-center gap-2"
           >
-            {loading ? "Please wait..." : isRegister ? "Create Account" : "Sign In"}
+            {loading ? "Please wait..." : isRegister ? "Create Account" : "Sign In to Veyra"}
+            {!loading && <span>→</span>}
+          </button>
+
+          <div className="text-center text-xs text-white/30 mb-4">OR</div>
+
+          <button
+            type="button"
+            className="w-full border border-white/10 text-white/70 py-3 rounded-lg text-sm flex items-center justify-center gap-2"
+          >
+            ⚡ Send Magic Sign-In Link
           </button>
         </form>
 
         <button
           onClick={() => setIsRegister(!isRegister)}
-          className="text-white/50 text-sm mt-4 hover:text-white"
+          className="text-white/40 text-xs mt-6 hover:text-white block mx-auto"
         >
           {isRegister ? "Already have an account? Sign in" : "New here? Create an account"}
         </button>
+
+        <p className="text-center text-[10px] text-white/20 mt-6">
+          Protected by enterprise-grade encryption · UK/EU compliant
+        </p>
       </div>
     </div>
   );
