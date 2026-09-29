@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import CreateVideo from "./pages/CreateVideo";
+import VideoPlan from "./pages/VideoPlan";
+import CostEstimate from "./pages/CostEstimate";
 import VideoLibrary from "./pages/VideoLibrary";
 import AdminPanel from "./pages/AdminPanel";
 import Login from "./pages/Login";
@@ -28,6 +30,8 @@ export default function App() {
         >
           <Route path="/" element={<Dashboard />} />
           <Route path="/create" element={<CreateVideo />} />
+          <Route path="/create/plan" element={<VideoPlan />} />
+          <Route path="/create/cost" element={<CostEstimate />} />
           <Route path="/library" element={<VideoLibrary />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/assets" element={<AssetLibrary />} />

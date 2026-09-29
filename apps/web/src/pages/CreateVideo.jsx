@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchVideoPlan } from "../lib/api";
+import { savePlan } from "../lib/planStore";
 import { Home, Sun, Heart, Building2, GraduationCap, Users, User, Flag, Plus } from "lucide-react";
 
 const STEPS = [
@@ -30,15 +32,12 @@ const SECTOR_ICONS = {
   "Other": Plus,
 };
 
-// Safe display helper: shows "—" when a value is missing
-const show = (v) => (v === undefined || v === null ? "—" : v);
-
 export default function CreateVideo() {
+  const navigate = useNavigate();
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
   const currentStep = STEPS[stepIndex];
@@ -63,8 +62,8 @@ export default function CreateVideo() {
     setError(null);
     try {
       const data = await fetchVideoPlan(description, answers.Sector);
-      console.log("PLAN RESULT", data);
-      setResult(data);
+      savePlan({ result: data, answers, description });
+      navigate("/create/plan");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -75,116 +74,6 @@ export default function CreateVideo() {
   const goBack = () => {
     if (stepIndex > 0) setStepIndex(stepIndex - 1);
   };
-
-  if (result) {
-    const cost = result.cost_analysis ?? {};
-    const reuse = result.reuse_analysis ?? {};
-    const providers = result.provider_decision?.comparison_table ?? [];
-
-    return (
-      <div>
-        <h1 className="text-3xl font-display font-semibold mb-6">Video Plan Ready</h1>
-
-        <div className="bg-white/[0.03] border border-white/10 rounded-xl overflow-hidden mb-4">
-          <div className="aspect-video bg-black flex flex-col items-center justify-center p-8 relative border-b border-white/10">
-            <div className="absolute top-4 left-4 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse" />
-              <span className="text-xs text-white/50">PREVIEW</span>
-            </div>
-            <pre className="whitespace-pre-wrap text-sm text-white/90 max-h-full overflow-y-auto leading-relaxed">
-              {result.generated_script ?? ""}
-            </pre>
-          </div>
-          <div className="p-4 flex items-center justify-between">
-            <div className="text-sm text-white/50">Script Preview — Video not yet rendered</div>
-            <div className="text-xs px-2 py-1 rounded bg-neon-green/10 text-neon-green">
-              Draft
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 mb-4">
-          <div className="text-sm text-white/50 mb-1">Reuse Analysis</div>
-          <div className="text-2xl font-display">{show(reuse.reuse_percentage)}% reusable</div>
-        </div>
-
-        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 mb-4">
-          <div className="text-sm text-white/50 mb-3">Cost Estimation & Provider Recommendation</div>
-
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <div className="text-xs text-white/40 mb-2">Generation Cost Breakdown</div>
-              <div className="text-xs space-y-1">
-                <div className="flex justify-between">
-                  <span className="text-white/50">Provider Generation</span>
-                  <span>£{show(cost.base_cost)}</span>
-                </div>
-                <div className="flex justify-between font-medium pt-1 border-t border-white/10">
-                  <span>Estimated Total</span>
-                  <span className="text-neon-green">£{show(cost.final_estimated_cost)}</span>
-                </div>
-              </div>
-            </div>
-            <div>
-              <div className="text-xs text-white/40 mb-2">RAG Library Savings</div>
-              <div className="text-xs space-y-1">
-                <div className="flex justify-between">
-                  <span className="text-white/50">Without Reuse</span>
-                  <span>£{show(cost.base_cost)}</span>
-                </div>
-                <div className="flex justify-between font-medium pt-1 border-t border-white/10">
-                  <span>Saved</span>
-                  <span className="text-neon-green">£{show(cost.saving)} ({show(cost.saving_percentage)}%)</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-white/10 pt-4">
-            <div className="text-xs text-white/40 mb-2">Provider Comparison</div>
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="text-white/30 text-left">
-                  <th className="pb-2">Provider</th>
-                  <th className="pb-2 text-right">Cost</th>
-                </tr>
-              </thead>
-              <tbody>
-                {providers.length === 0 ? (
-                  <tr>
-                    <td colSpan={2} className="py-1 text-white/30">No provider data returned</td>
-                  </tr>
-                ) : (
-                  providers.map((p) => (
-                    <tr key={p.provider} className={p.recommended ? "text-neon-green" : "text-white/70"}>
-                      <td className="py-1">{p.provider} {p.recommended && "(Recommended)"}</td>
-                      <td className="py-1 text-right">£{show(p.total_cost)}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {result.recommended_avatar && (
-          <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 mb-4">
-            <div className="text-sm text-white/50 mb-1">Recommended Avatar</div>
-            <div className="font-medium">{result.recommended_avatar?.id}</div>
-            <div className="text-sm text-white/50 mt-1">{result.recommended_avatar?.text}</div>
-          </div>
-        )}
-
-        {result.recommended_background && (
-          <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 mb-4">
-            <div className="text-sm text-white/50 mb-1">Recommended Background</div>
-            <div className="font-medium">{result.recommended_background?.id}</div>
-            <div className="text-sm text-white/50 mt-1">{result.recommended_background?.text}</div>
-          </div>
-        )}
-      </div>
-    );
-  }
 
   return (
     <div>
