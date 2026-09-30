@@ -1,26 +1,29 @@
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard,
-  VideoIcon,
-  Library,
-  Image,
-  Mountain,
-  BarChart2,
+  ShieldCheck,
+  Users,
+  Database,
+  Server,
+  ScrollText,
+  Lock,
   Settings,
   LogOut,
 } from "lucide-react";
 
-const navItems = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/create", label: "Create Video", icon: VideoIcon },
-  { path: "/library", label: "Video Library", icon: Library },
-  { path: "/assets?type=avatar", label: "Avatar Library", icon: Image },
-  { path: "/assets?type=background", label: "Backgrounds", icon: Mountain },
-  { path: "/reports", label: "Reports", icon: BarChart2 },
-  { path: "/settings", label: "Settings", icon: Settings },
+const adminNavItems = [
+  { path: "/admin", label: "Dashboard", icon: ShieldCheck },
+  { path: "/admin/users", label: "Users", icon: Users },
+  { path: "/admin/assets", label: "RAG Management", icon: Database },
+  { path: "/admin/providers", label: "Providers", icon: Server },
 ];
 
-export default function Layout() {
+const disabledNavItems = [
+  { label: "Audit Trail", icon: ScrollText },
+  { label: "Security", icon: Lock },
+  { label: "Settings", icon: Settings },
+];
+
+export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const email = localStorage.getItem("email");
@@ -41,12 +44,12 @@ export default function Layout() {
           </div>
           <div>
             <div className="text-sm font-display font-semibold leading-none">VEYRA</div>
-            <div className="text-[9px] text-white/40 tracking-widest">AI ORCHESTRATION</div>
+            <div className="text-[9px] text-neon-green tracking-widest">SUPER ADMIN</div>
           </div>
         </div>
         <nav className="flex-1 p-2 overflow-y-auto">
-          {navItems.map((item) => {
-            const active = location.pathname === item.path.split("?")[0];
+          {adminNavItems.map((item) => {
+            const active = location.pathname === item.path;
             const Icon = item.icon;
             return (
               <Link
@@ -63,9 +66,28 @@ export default function Layout() {
               </Link>
             );
           })}
+
+          {disabledNavItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={item.label}
+                title="Not built yet"
+                className="flex items-center gap-2 px-3 py-2 rounded mb-1 text-sm text-white/25 cursor-not-allowed"
+              >
+                <Icon size={18} strokeWidth={1.75} />
+                {item.label}
+              </div>
+            );
+          })}
         </nav>
         <div className="p-2 border-t border-white/10">
-          {email && <div className="px-3 py-1 text-xs text-white/40 truncate">{email}</div>}
+          {email && (
+            <div className="px-3 py-2">
+              <div className="text-xs text-white/60 truncate">{email}</div>
+              <div className="text-[10px] text-white/30 uppercase tracking-widest">System Superuser</div>
+            </div>
+          )}
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-2 px-3 py-2 rounded text-sm text-white/50 hover:text-white hover:bg-white/10"

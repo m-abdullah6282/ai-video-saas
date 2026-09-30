@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
+import AdminLayout from "./components/AdminLayout";
 import Dashboard from "./pages/Dashboard";
 import CreateVideo from "./pages/CreateVideo";
 import VideoPlan from "./pages/VideoPlan";
@@ -19,6 +20,8 @@ function ProtectedRoute({ children }) {
 }
 
 function AdminRoute({ children }) {
+  const token = localStorage.getItem("token");
+  if (!token) return <Navigate to="/login" />;
   const role = localStorage.getItem("role");
   return role === "admin" ? children : <Navigate to="/" />;
 }
@@ -28,6 +31,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+
         <Route
           element={
             <ProtectedRoute>
@@ -42,10 +46,19 @@ export default function App() {
           <Route path="/library" element={<VideoLibrary />} />
           <Route path="/assets" element={<AssetLibrary />} />
           <Route path="/library/:videoId" element={<VideoDetail />} />
-          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-          <Route path="/admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
-          <Route path="/admin/assets" element={<AdminRoute><RagAssetLibrary /></AdminRoute>} />
-          <Route path="/admin/providers" element={<AdminRoute><ProviderManagement /></AdminRoute>} />
+        </Route>
+
+        <Route
+          element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }
+        >
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<UserManagement />} />
+          <Route path="/admin/assets" element={<RagAssetLibrary />} />
+          <Route path="/admin/providers" element={<ProviderManagement />} />
         </Route>
       </Routes>
     </BrowserRouter>

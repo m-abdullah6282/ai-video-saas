@@ -21,7 +21,8 @@ export default function Login() {
       } else {
         await login(email, password);
       }
-      navigate("/");
+      const role = localStorage.getItem("role");
+      navigate(role === "admin" ? "/admin" : "/");
     } catch (err) {
       setError(err.message);
     } finally {
